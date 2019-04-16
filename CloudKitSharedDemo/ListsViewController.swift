@@ -12,6 +12,9 @@ import SVProgressHUD
 
 class ListsViewController: UIViewController {
     let cellReuseIdentifier = "cell"
+    let listRecordTypeID = "List"
+    let itemRecordTypeID = "Item"
+    
     @IBOutlet weak var messageLabel: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var tableView: UITableView!
@@ -149,21 +152,32 @@ extension ListsViewController:UITableViewDelegate,UITableViewDataSource{
         }
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         userSelectionIndex = indexPath.row
-        performSegue(withIdentifier: "ListDetail", sender: self)
+        performSegue(withIdentifier: "AddListSegue", sender: self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "ListDetail"{
-            
-            if let addListVC = segue.destination as? AddListVC{
-                addListVC.delegate = self
-                if let selection = userSelectionIndex {
-                    addListVC.list = lists[selection]
+        switch segue.identifier {
+            case "AddListSegue":
+                if let addListVC = segue.destination as? AddListVC{
+                    addListVC.delegate = self
+                    if let selection = userSelectionIndex {
+                        addListVC.list = lists[selection]
+                    }
                 }
-            }
+            case "ShowListSegue":
+                if let singleVC = segue.destination as? SingleListVC{
+                    if let validSelection = tableView.indexPathForSelectedRow?.row {
+                        singleVC.list = lists[validSelection]
+                    }
+                }
+            default: return
         }
     }
     
